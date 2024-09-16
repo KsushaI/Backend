@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Визы</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/paper7.css' %}">
+</head>
+<body>
+<div class="header">
+    <div class="visa_label">
+        <a href="http://127.0.0.1:8000/visas"><img class="visa_picture"
+                                                   src="{% static 'images/visa_label_blue.png' %}"/></a>
+        <div class="visa_title">
+            <p>Визовый</p>
+            <p>центр</p>
+            <p>РФ</p>
+        </div>
+    </div>
+</div>
+<div class="under-header">
+     <form action="filtered" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input name="text" type="text" value="{{ input_text }}" class="inputbox" ><br><br>
+        <input type="submit" value="Поиск" class="search_button">
+    </form>
+    <a href="{% url 'order' app_id %}" class="trolly">Заявка
+        <div class="num-box">{{counter}}</div>
+    </a>
+
+</div>
+<div class="space">
+
+    <p class="main_title">Визы</p>
+    <p class="direction">Выберите визу:</p>
+    <div class="container">
+        {% with base_url="http://127.0.0.1:9000/test/" %}
+        {% for visa in visas_list %}
+        <div class="card">
+            <a href="{% url 'details' visa.id %}"><img src="{{base_url}}{{visa.id}}.jpg" class="image"></a>
+            <div class="visa"><p class="title">{{visa.type}}</p>
+                <div class="right-section"><p class="price">от {{visa.price}} р</p><a href=""
+                                                                                      class="card-button">Оформить</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endwith %}
+    </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Детали</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/more2.css' %}">
+</head>
+<body>
+<div class="header">
+    <div class="visa_label">
+        <a href="http://127.0.0.1:8000/visas"><img class="visa_picture"
+                                                   src="{% static 'images/visa_label_white.png' %}"/></a>
+        <div class="visa_title">
+            <p>Визовый</p>
+            <p>центр</p>
+            <p>РФ</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="upper-part">
+        <div class="visa_name">
+            <p class="visa_type">{{visa.type}}</p>
+            <p class="visa-word">виза</p>
+        </div>
+        <div class="documents-box"><h1>Список документов</h1>
+            <ul>
+                <li>Бронь авиабилета</li>
+                <li>Справка с работы</li>
+                <li>Заполненная анкета</li>
+                <li>Паспорт</li>
+                <li>Фотографии</li>
+                <li>Ксерокс загранпаспорта</li>
+                <li>Заполненная анкета</li>
+                <li>Паспорт</li>
+                <li>Фотографии</li>
+                <li>Ксерокс загранпаспорта</li>
+            </ul>
+            <h1>Стоимость оформления</h1>
+            <div class="price_line">
+                <p>от</p><p class="price">{{visa.price}}</p><p>по запросу</p>
+            </div>
+
+        </div>
+    </div>
+    <img src="http://127.0.0.1:9000/test/{{visa.id}}.jpg" alt="картинка к визе" class="image">
+</div>
+</body>
+</html>
+

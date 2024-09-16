@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Заявка</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/trolly3.css' %}">
+</head>
+<body>
+<div class="header">
+    <div class="visa_label">
+        <a href="http://127.0.0.1:8000/visas"><img class="visa_picture"
+                                                   src="{% static 'images/visa_label_blue.png' %}"/></a>
+        <div class="visa_title">
+            <p>Визовый</p>
+            <p>центр</p>
+            <p>РФ</p>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="order_field"><h2 class="color">Срок действия:</h2>
+        <h2>до 90 дней</h2></div>
+    {%for visa in ordered_visas%}
+    <div class="card">
+        <img src="http://127.0.0.1:9000/test/{{visa.id}}.jpg" class="image"/>
+        <div class="field">
+            <p class="field_name">Тип визы</p>
+            <p>{{visa.type}} виза</p>
+        </div>
+        <div class="field">
+            <p class="field_name">Цена</p>
+            <p>от {{visa.price}} р</p>
+        </div>
+        <div class="field">
+            <p class="field_name">ФИО</p>
+            <p>Иванов</p>
+            <p>Иван</p>
+            <p>Иванович</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>
+
+
