@@ -20,7 +20,6 @@ from pages import views
 
 urlpatterns = [
     path('', include('pages.urls')),
-    path('visas/filtered', views.filtered, name='filtered'),
     path('order/<int:application_id>/', views.order, name='order'),
     path('details/<int:visa_id>/', views.details, name='details'),
     path('visas/', views.visas),

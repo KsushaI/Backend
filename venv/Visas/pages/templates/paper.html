@@ -19,15 +19,14 @@
     </div>
 </div>
 <div class="under-header">
-     <form action="filtered" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input name="text" type="text" value="{{ input_text }}" class="inputbox" ><br><br>
+    <form action="{% url 'visas' %}" method="GET" enctype="multipart/form-data">
+        <input class="inputbox" type="text" name="search_query" placeholder="Поиск по цене..."
+               value="{{ request.GET.search_query }}">
         <input type="submit" value="Поиск" class="search_button">
     </form>
     <a href="{% url 'order' app_id %}" class="trolly">Заявка
         <div class="num-box">{{counter}}</div>
     </a>
-
 
 </div>
 <div class="space">
@@ -40,8 +39,8 @@
         <div class="card">
             <a href="{% url 'details' visa.id %}"><img src="{{base_url}}{{visa.id}}.jpg" class="image"></a>
             <div class="visa"><p class="title">{{visa.type}}</p>
-                <div class="right-section"><p class="price">от {{visa.price}} р</p><a href=""
-                                                                                      class="card-button">Оформить</a>
+                <div class="right-section"><p class="price">от {{visa.price}} р</p>
+                    <!--<a href="" class="card-button">Оформить</a>-->
                 </div>
             </div>
         </div>

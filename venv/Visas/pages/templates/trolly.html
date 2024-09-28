@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Заявка</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/trolly3.css' %}">
+    <link rel="stylesheet" href="{% static 'css/trolly.css' %}">
 </head>
 <body>
 <div class="header">
@@ -19,9 +19,11 @@
     </div>
 </div>
 <div class="container">
-    <div class="order_field"><h2 class="color">Срок действия:</h2>
-        <h2>до 90 дней</h2></div>
-    {%for visa in ordered_visas%}
+    <div class="order_field"><h2 class="color">C:</h2>
+        <h2 class="date">{{from}}</h2>
+        <h2 class="color">Срок пребывания:</h2>
+        <h2>{{duration}} дней</h2></div>
+    {% for visa in ordered_visas %}
     <div class="card">
         <img src="http://127.0.0.1:9000/test/{{visa.id}}.jpg" class="image"/>
         <div class="field">
@@ -34,9 +36,9 @@
         </div>
         <div class="field">
             <p class="field_name">ФИО</p>
-            <p>Иванов</p>
-            <p>Иван</p>
-            <p>Иванович</p>
+            <p>{{visa.last_name}}</p>
+            <p>{{visa.first_name}}</p>
+            <p>{{visa.patronymic}}</p>
         </div>
     </div>
     {% endfor %}
