@@ -78,7 +78,7 @@ def ordered(application_id):
     return ordered_visas
 
 
-app_id = 2
+app_id = 1
 
 def details(request, visa_id):
     return render(request, 'details.html', {'visa': visas_list[visa_id - 1]})
