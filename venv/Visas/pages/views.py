@@ -36,7 +36,7 @@ visas_list = [
     {
         'id': 6,
         'type': 'Гуманитарная',
-        'price': 14600,
+        'price': 7000,
     }
 ]
 
@@ -103,3 +103,5 @@ def visas(request):
         return render(request, 'paper.html',
                       {'app_id': app_id, 'counter': len(applications[app_id - 1]['visas']),
                        'visas_list': visas_list})
+
+
