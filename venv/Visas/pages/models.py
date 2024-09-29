@@ -34,3 +34,13 @@ class Application(models.Model):
 
     class Meta:
         db_table = 'applications'
+
+class Application_Visa(models.Model):
+    app = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='зявка')
+    visa = models.ForeignKey(Visa, on_delete=models.CASCADE, related_name='виза')
+    fio = models.CharField(max_length=60, null=True, blank=True)
+    class Meta:
+        db_table = 'applications_visas'
+        constraints = [
+            models.UniqueConstraint(fields=['app', 'visa'], name='unique app_visa')
+        ]

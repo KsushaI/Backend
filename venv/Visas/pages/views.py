@@ -6,6 +6,7 @@ def pages(request):
 # Create your views here.
 from django.shortcuts import render
 from datetime import date
+from .models import Visa
 
 visas_list = [
     {
@@ -46,21 +47,24 @@ applications = [
         "from": "21.09.2024",
         "duration": 30,
         "visas": [2, 3, 5, 6],
-        "fios": ["Алексеева Алекса Алексеевна", "Васильев Василий Васильевич", "Иванов Иван Иванович", "Моисеев Моисей Моисеевич"]
+        "fios": ["Алексеева Алекса Алексеевна", "Васильев Василий Васильевич", "Иванов Иван Иванович",
+                 "Моисеев Моисей Моисеевич"]
     },
     {
         "id": 2,
         "from": "22.09.2024",
         "duration": 90,
         "visas": [1, 3, 4, 6, 2],
-        "fios": ["Алексеева Алекса Алексеевна", "Васильев Василий Васильевич", "Иванов Иван Иванович", "Моисеев Моисей Моисеевич", "Петров Пётр Петрович"]
+        "fios": ["Алексеева Алекса Алексеевна", "Васильев Василий Васильевич", "Иванов Иван Иванович",
+                 "Моисеев Моисей Моисеевич", "Петров Пётр Петрович"]
     },
     {
         "id": 3,
         "from": "23.09.2024",
         "duration": 180,
         "visas": [1, 3, 4, 6, 2, 5],
-        "fios": ["Алексеева Алекса Алексеевна", "Васильев Василий Васильевич", "Иванов Иван Иванович", "Моисеев Моисей Моисеевич", "Петров Пётр Петрович", "Тимошин Тимофей Тимофеевич"]
+        "fios": ["Алексеева Алекса Алексеевна", "Васильев Василий Васильевич", "Иванов Иван Иванович",
+                 "Моисеев Моисей Моисеевич", "Петров Пётр Петрович", "Тимошин Тимофей Тимофеевич"]
     }
 
 ]
@@ -79,14 +83,21 @@ def ordered(application_id):
 
 
 app_id = 2
-
+'''
 def details(request, visa_id):
     return render(request, 'details.html', {'visa': visas_list[visa_id - 1]})
+'''
+
+
+def details(request, visa_id):
+    return render(request, 'details.html', {'visa':
+                                                Visa.objects.filter(id=visa_id)[0]})
 
 
 def order(request, application_id):
-    return render(request, 'trolly.html', {"ordered_visas": ordered(application_id), "from": applications[application_id - 1]["from"], "duration": applications[application_id - 1]["duration"]})
-
+    return render(request, 'trolly.html',
+                  {"ordered_visas": ordered(application_id), "from": applications[application_id - 1]["from"],
+                   "duration": applications[application_id - 1]["duration"]})
 
 
 def visas(request):
@@ -102,6 +113,4 @@ def visas(request):
     else:
         return render(request, 'paper.html',
                       {'app_id': app_id, 'counter': len(applications[app_id - 1]['visas']),
-                       'visas_list': visas_list})
-
-
+                       'visas_list': Visa.objects.all()})
