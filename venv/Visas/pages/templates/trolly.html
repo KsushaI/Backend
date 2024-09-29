@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Заявка</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/trolly.css' %}">
+    <link rel="stylesheet" href="{% static 'css/trolly1.css' %}">
 </head>
 <body>
 <div class="header">
@@ -42,6 +42,10 @@
         </div>
     </div>
     {% endfor %}
+    <form action="{% url 'delete' app_id %}" method="post">
+        {% csrf_token %}
+        <button>Удалить</button>
+    </form>
 </div>
 </body>
 </html>

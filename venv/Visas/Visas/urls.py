@@ -21,6 +21,8 @@ from pages import views
 urlpatterns = [
     path('', include('pages.urls')),
     path('order/<int:application_id>/', views.order, name='order'),
+    path('add/<int:visa_id>/', views.add, name='add'),
+    path('delete/<int:app_id>/', views.delete, name='delete'),
     path('details/<int:visa_id>/', views.details, name='details'),
     path('visas/', views.visas),
     path('admin/', admin.site.urls)

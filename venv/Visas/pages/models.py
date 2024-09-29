@@ -28,9 +28,9 @@ class Application(models.Model):
     moderator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
                                   related_name='заявки_модератора')
 
-    start_date = models.DateField()
+    start_date = models.DateField(default = '2024-09-30')
 
-    duration = models.IntegerField()
+    duration = models.IntegerField(default = 30)
 
     class Meta:
         db_table = 'applications'
