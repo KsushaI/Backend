@@ -9,7 +9,7 @@
 <body>
 <div class="header">
     <div class="visa_label">
-        <a href="http://127.0.0.1:8000/visas"><img class="visa_picture"
+        <a href="http://127.0.0.1:8000/visas/"><img class="visa_picture"
                                                    src="{% static 'images/visa_label_blue.png' %}"/></a>
         <div class="visa_title">
             <p>Визовый</p>
@@ -20,8 +20,8 @@
 </div>
 <div class="under-header">
     <form action="{% url 'visas' %}" method="GET" enctype="multipart/form-data" class="search_box">
-        <input class="inputbox" type="text" name="search_query" placeholder="Поиск по цене..."
-               value="{{ request.GET.search_query }}">
+        <input class="inputbox" type="text" name="visa_price" placeholder="Поиск по цене..."
+               value="{{ request.GET.visa_price }}">
         <input type="submit" value="Поиск" class="search_button">
     </form>
     {% if app_id == 0 or counter == 0 %}

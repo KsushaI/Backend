@@ -9,7 +9,7 @@
 <body>
 <div class="header">
     <div class="visa_label">
-        <a href="http://127.0.0.1:8000/visas"><img class="visa_picture"
+        <a href="http://127.0.0.1:8000/visas/"><img class="visa_picture"
                                                    src="{% static 'images/visa_label_blue.png' %}"/></a>
         <div class="visa_title">
             <p>Визовый</p>
@@ -20,7 +20,7 @@
 </div>
 <div class="container">
     <div class="order_field"><h2 class="color">C:</h2>
-        <h2 class="date">{{from}}</h2>
+        <h2 class="date">{{from|date:"d.m.Y"}}</h2>
         <h2 class="color">Срок пребывания:</h2>
         <h2>{{duration}} дней</h2></div>
     {% for visa in ordered_visas %}

@@ -96,16 +96,16 @@ def counter(request):
 
 
 def visas(request):
-    search_query = request.GET.get('search_query', '')
+    visa_price = request.GET.get('visa_price', '')
     app = Application.objects.filter(creator=request.user, status='Черновик').first()
     if app:
         app_id = app.id
     else:
         app_id = 0
-    if search_query and search_query.isnumeric():
+    if visa_price and visa_price.isnumeric():
         return render(request, 'paper.html',
                       {'app_id': app_id, 'counter': counter(request),
-                       'visas_list': Visa.objects.filter(price__lte=int(search_query), status='действует')})
+                       'visas_list': Visa.objects.filter(price__lte=int(visa_price), status='действует').order_by('price')})
     else:
         return render(request, 'paper.html',
                       {'app_id': app_id, 'counter': counter(request),
