@@ -7,9 +7,10 @@ from django.contrib.auth.models import User
 class Visa(models.Model):
     type = models.CharField(max_length=30)
     price = models.IntegerField()
-    url = models.CharField(max_length=40)
+    url = models.CharField(max_length=40, null=True, blank=True)
     status = models.CharField(max_length=20)
     description = models.TextField(null=True, blank=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='создатель_услуги', null=True, blank=True)
     class Meta:
         db_table = 'visas'
 
@@ -32,15 +33,18 @@ class Application(models.Model):
 
     duration = models.IntegerField(default = 30)
 
+    total = models.IntegerField(null=True, blank=True)
+
     class Meta:
         db_table = 'applications'
 
 class Application_Visa(models.Model):
-    app = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='зявка')
-    visa = models.ForeignKey(Visa, on_delete=models.CASCADE, related_name='виза')
+    app = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='зявка', null=True, blank=True)
+    visa = models.ForeignKey(Visa, on_delete=models.CASCADE, related_name='виза', null=True, blank=True)
     fio = models.CharField(max_length=60, null=True, blank=True)
     class Meta:
         db_table = 'applications_visas'
         constraints = [
             models.UniqueConstraint(fields=['app', 'visa'], name='unique app_visa')
         ]
+

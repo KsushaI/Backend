@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'pages'
 ]
 
@@ -126,3 +127,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AWS_STORAGE_BUCKET_NAME = 'logo'
+AWS_ACCESS_KEY_ID = 'minio'
+AWS_SECRET_ACCESS_KEY = 'minio124'
+AWS_S3_ENDPOINT_URL = 'localhost:9000'
+MINIO_USE_SSL = False
+
