@@ -26,7 +26,7 @@ from django.http import HttpResponse
 import uuid
 from rest_framework.decorators import permission_classes, authentication_classes
 from django.views.decorators.csrf import csrf_exempt
-from .permissions import IsManager, IsAdmin
+from .permissions import IsManager, IsAdmin, AuthBySessionID
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.decorators import authentication_classes
@@ -52,7 +52,7 @@ class VisaList(APIView):
     def get(self, request, format=None):
         visas = self.model_class.objects.filter(status='действует')
         serializer = self.serializer_class(visas, many=True)
-        user_draft_apps = Application.objects.filter(creator=get_user(), status='Черновик')
+        user_draft_apps = Application.objects.filter(creator=request.user.id, status='Черновик')
         if user_draft_apps.exists():
             user_draft_app_id = user_draft_apps.first().id
             quantity = Application_Visa.objects.filter(app_id=user_draft_app_id).count()
@@ -67,7 +67,7 @@ class VisaList(APIView):
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save(creator=get_user())
+            serializer.save(creator=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -103,7 +103,7 @@ class VisaDetail(APIView):
             if 'error' in pic_result.data:
                 return pic_result
         if serializer.is_valid():
-            serializer.save(creator=get_user())
+            serializer.save(creator=request.user)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -117,9 +117,13 @@ class VisaDetail(APIView):
 
 # Добавление услуги в корзину, создание корзины-черновик, если она не существует
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([AuthBySessionID])
+
 def add_to_trolly(request, pk, format=None):
     visa = get_object_or_404(Visa, pk=pk)
-    application, new_application = Application.objects.get_or_create(creator=get_user().id, status='Черновик')
+    print(request.user.id)
+    application, new_application = Application.objects.get_or_create(creator_id=request.user.id, status='Черновик')
     if application:
         app_visa, _ = Application_Visa.objects.update_or_create(app_id=application.id, visa_id=visa.id)
     if new_application:
@@ -143,15 +147,18 @@ def method_permission_classes(classes):
 class AppList(APIView):
     model_class = Application
     serializer_class = ApplicationSerializer
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
+    authentication_classes = [AuthBySessionID]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         start_date = request.query_params.get('start_date', None)
         end_date = request.query_params.get('end_date', None)
         status_ = request.query_params.get('status')
-        object_list = self.model_class.objects.filter(creator=get_user()).exclude(status="Черновик").exclude(
+        if request.user.is_staff:
+            object_list = self.model_class.objects.exclude(status="Черновик").exclude(
+                status="Удалена")
+        else:
+            object_list = self.model_class.objects.filter(creator=request.user).exclude(status="Черновик").exclude(
             status="Удалена")
         '''if start_date or end_date:
             if not (start_date):
@@ -194,21 +201,21 @@ class AppDetail(APIView):
             })
         return Response({'app_fields': serializer.data, "services": services})
 
-    #@swagger_auto_schema(request_body=ApplicationSerializer)
+    @swagger_auto_schema(request_body=ApplicationSerializer)
     # Обновляет доп поля заявки
     def put(self, request, pk, format=None):
         app = get_object_or_404(self.model_class, pk=pk)
         updated_data = {key: value for key, value in request.data.items() if key in ['start_date', 'duration']}
         serializer = self.serializer_class(app, data=updated_data, partial=True)
         if serializer.is_valid():
-            serializer.save(creator=get_user())
+            serializer.save(creator=request.user)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Смена статуса заявки на Удалён создателем
     def delete(self, request, pk, format=None):
         app = get_object_or_404(self.model_class, pk=pk)
-        if get_user().id == app.creator_id:
+        if request.user.id == app.creator_id:
             serializer = self.serializer_class(app, data={'status': 'Удалена'})
             if serializer.is_valid():
                 serializer.save()
@@ -218,9 +225,11 @@ class AppDetail(APIView):
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([AuthBySessionID])
 def form(request, pk, format=None):
     app = get_object_or_404(Application, pk=pk)
-    if get_user().id == app.creator_id:
+    if request.user.id == app.creator_id:
         # checking all mandatory fields
         serializer = ApplicationSerializer(app, data={'status': 'Сформирована', 'formation_date': datetime.now()},
                                            partial=True)
@@ -232,13 +241,17 @@ def form(request, pk, format=None):
 
 
 #@csrf_exempt
-#@permission_classes([IsManager])
-#@authentication_classes([])
-#@api_view(['PUT'])
+
+
+@api_view(['PUT'])
+@permission_classes([IsManager])
+@authentication_classes([AuthBySessionID])
+
 def update_application_status(request, pk, action):
     app = get_object_or_404(Application, pk=pk)
-    if get_user().is_staff:
-        app.moderator = get_user()
+    if request.user.id != app.creator_id:
+        app.moderator_id = request.user.id
+        print(request.user.id)
         if action == 'complete':
             app.total = Application_Visa.objects.filter(app_id=app.id).aggregate(total=Sum('visa__price'))[
                             'total'] or 0
@@ -254,7 +267,8 @@ def update_application_status(request, pk, action):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'error': "Permissiod denied. Isn't staff!"}, status=status.HTTP_400_BAD_REQUEST)
+    print(request.user)
+    return Response({'error': "Permissiod denied. Is creator!"}, status=status.HTTP_403_FORBIDDEN)
 
 
 class AppVisaList(APIView):
@@ -385,10 +399,10 @@ class UserViewSet(ModelViewSet):
         return Response({'status': 'Exist', 'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-#@permission_classes([AllowAny])
-#@authentication_classes([])
-#@csrf_exempt
-#@swagger_auto_schema(method='post', request_body=UserSerializer)
+@permission_classes([AllowAny])
+@authentication_classes([])
+@csrf_exempt
+@swagger_auto_schema(method='post', request_body=UserSerializer)
 @api_view(['Post'])
 def login_view(request):
     username = request.data["username"]  # допустим передали username и password
