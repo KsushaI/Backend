@@ -46,11 +46,13 @@ def get_user():
 class VisaList(APIView):
     model_class = Visa
     serializer_class = VisaSerializer
-
     # Возвращает список of visas
 
     def get(self, request, format=None):
-        visas = self.model_class.objects.filter(status='действует')
+        visa_price = request.query_params.get('visa_price')
+        visas = self.model_class.objects.filter(status='действует').order_by('id')
+        if visa_price:
+            visas = visas.filter(price__lte=visa_price)
         serializer = self.serializer_class(visas, many=True)
         user_draft_apps = Application.objects.filter(creator=request.user.id, status='Черновик')
         if user_draft_apps.exists():
@@ -67,7 +69,7 @@ class VisaList(APIView):
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save(creator=request.user)
+            serializer.save(creator=request.user.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -87,7 +89,8 @@ def update_pic(request, pk, format=None):
 class VisaDetail(APIView):
     model_class = Visa
     serializer_class = VisaSerializer
-
+    #authentication_classes = [AuthBySessionID]
+    #permission_classes = [IsManager]
     # Возвращает информацию о визе
     def get(self, request, pk, format=None):
         visa = get_object_or_404(self.model_class, pk=pk)
@@ -96,17 +99,17 @@ class VisaDetail(APIView):
 
     # Обновляет информацию о визе (для модератора)
     def put(self, request, pk, format=None):
-        visa = get_object_or_404(self.model_class, pk=pk)
-        serializer = self.serializer_class(visa, data=request.data, partial=True)
-        if 'pic' in serializer.initial_data:
-            pic_result = add_pic(visa, serializer.initial_data['pic'])
-            if 'error' in pic_result.data:
-                return pic_result
-        if serializer.is_valid():
-            serializer.save(creator=request.user)
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            visa = get_object_or_404(self.model_class, pk=pk)
+            serializer = self.serializer_class(visa, data=request.data, partial=True)
+        #if 'pic' in serializer.initial_data:
+        #    pic_result = add_pic(visa, serializer.initial_data['pic'])
+        #    if 'error' in pic_result.data:
+        #       return pic_result
+            if serializer.is_valid():
+                serializer.save(creator=request.user.id)
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            #return Response({'error': 'Not moderator!'}, status=status.HTTP_400_BAD_REQUEST)
     # Удаляет информацию о визе
     def delete(self, request, pk, format=None):
         visa = get_object_or_404(self.model_class, pk=pk)
@@ -117,7 +120,7 @@ class VisaDetail(APIView):
 
 # Добавление услуги в корзину, создание корзины-черновик, если она не существует
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @authentication_classes([AuthBySessionID])
 
 def add_to_trolly(request, pk, format=None):
@@ -148,7 +151,7 @@ class AppList(APIView):
     model_class = Application
     serializer_class = ApplicationSerializer
     authentication_classes = [AuthBySessionID]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         start_date = request.query_params.get('start_date', None)
@@ -225,7 +228,7 @@ class AppDetail(APIView):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @authentication_classes([AuthBySessionID])
 def form(request, pk, format=None):
     app = get_object_or_404(Application, pk=pk)
